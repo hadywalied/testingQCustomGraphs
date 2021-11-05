@@ -11,7 +11,9 @@ file(GLOB_RECURSE SRCS
         *.cpp
         *.h
         reusableComponents/*.cpp
-        reusableComponents/*.h)
+        reusableComponents/*.h
+        dataModels/*.cpp
+        dataModels/*.h)
 
 add_library(gui ${SRCS})
 
