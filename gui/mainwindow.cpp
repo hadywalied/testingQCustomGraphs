@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include <gui/reusableComponents/qcustomplot.h>
-#include <gui/DeviceXplore/ListView.h>
+#include <gui/reusableComponents/ListView.h>
 
 
 MainWindow::MainWindow() {

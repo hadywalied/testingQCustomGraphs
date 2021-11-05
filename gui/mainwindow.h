@@ -8,7 +8,7 @@
 #include <QListView>
 #include <QSplitter>
 #include <gui/reusableComponents/qcustomplot.h>
-#include <gui/DeviceXplore/ListView.h>
+#include <gui/reusableComponents/ListView.h>
 
 class MainWindow : public QMainWindow {
 Q_OBJECT
