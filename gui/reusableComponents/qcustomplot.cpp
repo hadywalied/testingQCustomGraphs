@@ -8157,7 +8157,7 @@ void QCPGrid::drawSubGridLines(QCPPainter *painter) const
   range shouldn't go beyond certain values (see \ref QCPRange::bounded). For example, the following
   slot would limit the x axis to ranges between 0 and 10:
   \code
-  customPlot->xAxis->setRange(newRange.bounded(0, 10))
+  currentCustomPlot->xAxis->setRange(newRange.bounded(0, 10))
   \endcode
 */
 
@@ -31025,7 +31025,7 @@ QPen QCPItemBracket::mainPen() const
   range shouldn't go beyond certain values (see \ref QCPRange::bounded). For example, the following
   slot would limit the x axis to ranges between 0 and 10:
   \code
-  customPlot->xAxis->setRange(newRange.bounded(0, 10))
+  currentCustomPlot->xAxis->setRange(newRange.bounded(0, 10))
   \endcode
 */
 

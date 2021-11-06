@@ -18,17 +18,54 @@ void MainWindow::setupUI() {
 }
 
 void MainWindow::setCentralPlottingArea() {
-//    gridLayout = new QGridLayout;
 
-    customPlot = new QCustomPlot();
+    currentCustomPlot = new QCustomPlot();
+    currentCustomPlot->setMinimumSize(400, 400);
+    currentCustomPlot->setMaximumSize(800, 800);
+    currentCustomPlot->setSizeIncrement(100, 100);
+    QSizePolicy policy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    currentCustomPlot->setSizePolicy(policy);
+
+    scroll = new QScrollArea();
+    scroll->setWidgetResizable(true);
+    scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    setCentralWidget(scroll);
+
+    flowlayout = new FlowLayout();
+    auto w = new QWidget;
+    w->setLayout(flowlayout);
+    scroll->setWidget(w);
 
     addPlot("Plotting 1", {1, 2, 3, 4, 5, 6}, {2, 3, 4, 5, 6, 8}, true);
     addPlot("Plotting 2", {1, 2, 3, 4, 5, 6}, {2, 5, 4, 8, 6, 1}, false);
 
-//    gridLayout->addWidget(customPlot);
-//    QWidget *widget = new QWidget;
-//    widget->setLayout(gridLayout);
-    setCentralWidget(customPlot);
+    addFlowWidget(currentCustomPlot);
+
+//    setCentralWidget(currentCustomPlot);
+}
+
+void MainWindow::addFlowWidget(QWidget *w) {
+    widgetList.push_back(w);
+//    for(auto w : widgetList){
+//        flowlayout->removeWidget(w);
+//    }
+    flowlayout->addWidget(w);
+//    dynamicWidgetSizeAdjusting();
+}
+
+void MainWindow::dynamicWidgetSizeAdjusting() {
+    if (widgetList.size() < 2) {
+    } else if (widgetList.size() < 4) {
+        for (auto w1 : widgetList) {
+            w1->setMinimumSize(400, 400);
+        }
+        setCentralWidget(scroll);
+    } else {
+        for (auto w1 : widgetList) {
+            w1->setMinimumSize(200, 200);
+        }
+        setCentralWidget(scroll);
+    }
 }
 
 void MainWindow::setLeftDockPlottingList() {
@@ -47,8 +84,9 @@ void MainWindow::setLeftDockPlottingList() {
     dock->setWidget(list_view);
 
     addDockWidget(Qt::LeftDockWidgetArea, dock);
-
+    list_view->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(list_view, SIGNAL(itemClicked(QListWidgetItem * )), SLOT(onListItemSelected()));
+    connect(list_view, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(ShowContextMenu(QPoint)));
 }
 
 void MainWindow::setRightDockPlottingSettings() {
@@ -106,48 +144,49 @@ void MainWindow::onPlotButtonClicked() {
 
 void MainWindow::addPlot(const QString &title, const QVector<double> &xdata,
                          const QVector<double> &ydata, bool linePlot) {
-    customPlot->clearGraphs();
-    customPlot->addGraph();
+    currentCustomPlot->clearGraphs();
+    currentCustomPlot->addGraph();
     std::srand(std::time(nullptr)); // use current time as seed for random generator
     int r = std::rand() % 155 + 100;
     int g = std::rand() % 155 + 100;
     int b = std::rand() % 155 + 100;
     QColor color(r, g, b, 255);
-    customPlot->graph()->setLineStyle(QCPGraph::lsLine);
-    customPlot->graph()->setPen(QPen(color, 2));
-    customPlot->graph()->setName(title);
-    customPlot->graph()->setScatterStyle(QCPScatterStyle::ssCircle);
+    currentCustomPlot->graph()->setLineStyle(QCPGraph::lsLine);
+    currentCustomPlot->graph()->setPen(QPen(color, 2));
+    currentCustomPlot->graph()->setName(title);
+    currentCustomPlot->graph()->setScatterStyle(QCPScatterStyle::ssCircle);
     if (linePlot)
-        customPlot->graph()->setLineStyle(QCPGraph::lsLine);
+        currentCustomPlot->graph()->setLineStyle(QCPGraph::lsLine);
     else
-        customPlot->graph()->setLineStyle(QCPGraph::lsNone);
+        currentCustomPlot->graph()->setLineStyle(QCPGraph::lsNone);
 
-    customPlot->xAxis->setLabel("X");
-    customPlot->yAxis->setLabel("Y");
-    customPlot->xAxis->setRange(-6000, 100);
-    customPlot->yAxis->setRange(-6000, 8000);
+    currentCustomPlot->xAxis->setLabel("X");
+    currentCustomPlot->yAxis->setLabel("Y");
+    currentCustomPlot->xAxis->setRange(-6000, 100);
+    currentCustomPlot->yAxis->setRange(-6000, 8000);
 
-    customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
-                                QCP::iSelectLegend | QCP::iSelectPlottables);
+    currentCustomPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
+                                       QCP::iSelectLegend | QCP::iSelectPlottables);
 
-    customPlot->axisRect()->setupFullAxesBox();
+    currentCustomPlot->axisRect()->setupFullAxesBox();
 
     QFont legendFont = font();
     legendFont.setPointSize(10);
 
-    customPlot->legend->setVisible(false);
-    customPlot->legend->setFont(legendFont);
-    customPlot->legend->setSelectedFont(legendFont);
-    customPlot->legend->setSelectableParts(QCPLegend::spItems); // legend box shall not be selectable, only legend items
+    currentCustomPlot->legend->setVisible(false);
+    currentCustomPlot->legend->setFont(legendFont);
+    currentCustomPlot->legend->setSelectedFont(legendFont);
+    currentCustomPlot->legend->setSelectableParts(
+            QCPLegend::spItems); // legend box shall not be selectable, only legend items
 // show legend with slightly transparent background brush:
-    customPlot->legend->setBrush(QColor(255, 255, 255, 150));
-    customPlot->graph()->setData(xdata, ydata);
+    currentCustomPlot->legend->setBrush(QColor(255, 255, 255, 150));
+    currentCustomPlot->graph()->setData(xdata, ydata);
 
-    customPlot->rescaleAxes();
-    customPlot->replot();
-    customPlot->update();
+    currentCustomPlot->rescaleAxes();
+    currentCustomPlot->replot();
+    currentCustomPlot->update();
 
-    auto data = customPlot->toPixmap(400, 400);
+    auto data = currentCustomPlot->toPixmap(400, 400);
     auto pix = QPixmap(data);
 
     auto settings = new PlotSettings();
@@ -162,55 +201,56 @@ void MainWindow::addPlot(const QString &title, const QVector<double> &xdata,
 
     list_view->addPlotItem(pix, title, *settings, *pData);
 
-    customPlot->legend->setVisible(true);
-    customPlot->rescaleAxes();
-    customPlot->replot();
-    customPlot->update();
+    currentCustomPlot->legend->setVisible(true);
+    currentCustomPlot->rescaleAxes();
+    currentCustomPlot->replot();
+    currentCustomPlot->update();
 }
 
 void MainWindow::appendPlot(const QString &title, const QVector<double> &xdata, const QVector<double> &ydata,
                             bool linePlot) {
-    customPlot->addGraph();
+    currentCustomPlot->addGraph();
     std::srand(std::time(nullptr)); // use current time as seed for random generator
     int r = std::rand() % 155 + 100;
     int g = std::rand() % 155 + 100;
     int b = std::rand() % 155 + 100;
     QColor color(r, g, b, 255);
-    customPlot->graph()->setLineStyle(QCPGraph::lsLine);
-    customPlot->graph()->setPen(QPen(color, 2));
-    customPlot->graph()->setName(title);
-    customPlot->graph()->setScatterStyle(QCPScatterStyle::ssCircle);
+    currentCustomPlot->graph()->setLineStyle(QCPGraph::lsLine);
+    currentCustomPlot->graph()->setPen(QPen(color, 2));
+    currentCustomPlot->graph()->setName(title);
+    currentCustomPlot->graph()->setScatterStyle(QCPScatterStyle::ssCircle);
     if (linePlot)
-        customPlot->graph()->setLineStyle(QCPGraph::lsLine);
+        currentCustomPlot->graph()->setLineStyle(QCPGraph::lsLine);
     else
-        customPlot->graph()->setLineStyle(QCPGraph::lsNone);
+        currentCustomPlot->graph()->setLineStyle(QCPGraph::lsNone);
 
-    customPlot->xAxis->setLabel("X");
-    customPlot->yAxis->setLabel("Y");
-    customPlot->xAxis->setRange(-6000, 100);
-    customPlot->yAxis->setRange(-6000, 8000);
+    currentCustomPlot->xAxis->setLabel("X");
+    currentCustomPlot->yAxis->setLabel("Y");
+    currentCustomPlot->xAxis->setRange(-6000, 100);
+    currentCustomPlot->yAxis->setRange(-6000, 8000);
 
-    customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
-                                QCP::iSelectLegend | QCP::iSelectPlottables);
+    currentCustomPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
+                                       QCP::iSelectLegend | QCP::iSelectPlottables);
 
-    customPlot->axisRect()->setupFullAxesBox();
+    currentCustomPlot->axisRect()->setupFullAxesBox();
 
     QFont legendFont = font();
     legendFont.setPointSize(10);
 
-    customPlot->legend->setVisible(false);
-    customPlot->legend->setFont(legendFont);
-    customPlot->legend->setSelectedFont(legendFont);
-    customPlot->legend->setSelectableParts(QCPLegend::spItems); // legend box shall not be selectable, only legend items
+    currentCustomPlot->legend->setVisible(false);
+    currentCustomPlot->legend->setFont(legendFont);
+    currentCustomPlot->legend->setSelectedFont(legendFont);
+    currentCustomPlot->legend->setSelectableParts(
+            QCPLegend::spItems); // legend box shall not be selectable, only legend items
 // show legend with slightly transparent background brush:
-    customPlot->legend->setBrush(QColor(255, 255, 255, 150));
-    customPlot->graph()->setData(xdata, ydata);
+    currentCustomPlot->legend->setBrush(QColor(255, 255, 255, 150));
+    currentCustomPlot->graph()->setData(xdata, ydata);
 
-    customPlot->rescaleAxes();
-    customPlot->replot();
-    customPlot->update();
+    currentCustomPlot->rescaleAxes();
+    currentCustomPlot->replot();
+    currentCustomPlot->update();
 
-    auto data = customPlot->toPixmap(400, 400);
+    auto data = currentCustomPlot->toPixmap(400, 400);
     auto pix = QPixmap(data);
 
     auto settings = new PlotSettings(); //TODO: set the settings
@@ -226,10 +266,10 @@ void MainWindow::appendPlot(const QString &title, const QVector<double> &xdata, 
 
     list_view->addPlotItem(pix, title, *settings, pData);
 
-    customPlot->legend->setVisible(true);
-    customPlot->rescaleAxes();
-    customPlot->replot();
-    customPlot->update();
+    currentCustomPlot->legend->setVisible(true);
+    currentCustomPlot->rescaleAxes();
+    currentCustomPlot->replot();
+    currentCustomPlot->update();
 }
 
 void MainWindow::onAppendButtonClicked() {
@@ -247,47 +287,71 @@ void MainWindow::onListItemSelected() {
 
     currentPlotData = data;
     currentPlotSettings = settings;
-    customPlot->clearGraphs();
+    currentCustomPlot->clearGraphs();
 
     for (int i = 0; i < data.linePlot.size(); ++i) {
-        customPlot->addGraph();
+        currentCustomPlot->addGraph();
 
-        customPlot->graph()->setLineStyle(QCPGraph::lsLine);
-        customPlot->graph()->setPen(QPen(data.color[i], 2));
-        customPlot->graph()->setName(data.plotTitle[i]);
-        customPlot->graph()->setScatterStyle(QCPScatterStyle::ssCircle);
+        currentCustomPlot->graph()->setLineStyle(QCPGraph::lsLine);
+        currentCustomPlot->graph()->setPen(QPen(data.color[i], 2));
+        currentCustomPlot->graph()->setName(data.plotTitle[i]);
+        currentCustomPlot->graph()->setScatterStyle(QCPScatterStyle::ssCircle);
         if (data.linePlot[i])
-            customPlot->graph()->setLineStyle(QCPGraph::lsLine);
+            currentCustomPlot->graph()->setLineStyle(QCPGraph::lsLine);
         else
-            customPlot->graph()->setLineStyle(QCPGraph::lsNone);
+            currentCustomPlot->graph()->setLineStyle(QCPGraph::lsNone);
 
-        customPlot->xAxis->setLabel("X");
-        customPlot->yAxis->setLabel("Y");
-        customPlot->xAxis->setRange(-6000, 100);
-        customPlot->yAxis->setRange(-6000, 8000);
+        currentCustomPlot->xAxis->setLabel("X");
+        currentCustomPlot->yAxis->setLabel("Y");
+        currentCustomPlot->xAxis->setRange(-6000, 100);
+        currentCustomPlot->yAxis->setRange(-6000, 8000);
 
-        customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
-                                    QCP::iSelectLegend | QCP::iSelectPlottables);
+        currentCustomPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
+                                           QCP::iSelectLegend | QCP::iSelectPlottables);
 
-        customPlot->axisRect()->setupFullAxesBox();
+        currentCustomPlot->axisRect()->setupFullAxesBox();
 
         QFont legendFont = font();
         legendFont.setPointSize(10);
 
-        customPlot->legend->setVisible(true);
-        customPlot->legend->setFont(legendFont);
-        customPlot->legend->setSelectedFont(legendFont);
-        customPlot->legend->setSelectableParts(
+        currentCustomPlot->legend->setVisible(true);
+        currentCustomPlot->legend->setFont(legendFont);
+        currentCustomPlot->legend->setSelectedFont(legendFont);
+        currentCustomPlot->legend->setSelectableParts(
                 QCPLegend::spItems); // legend box shall not be selectable, only legend items
 // show legend with slightly transparent background brush:
-        customPlot->legend->setBrush(QColor(255, 255, 255, 150));
-        customPlot->graph()->setData(data.xdataList[i], data.ydataList[i]);
+        currentCustomPlot->legend->setBrush(QColor(255, 255, 255, 150));
+        currentCustomPlot->graph()->setData(data.xdataList[i], data.ydataList[i]);
 
-        customPlot->rescaleAxes();
-        customPlot->replot();
-        customPlot->update();
+        currentCustomPlot->rescaleAxes();
+        currentCustomPlot->replot();
+        currentCustomPlot->update();
 
     }
 
 }
 
+void MainWindow::ShowContextMenu(const QPoint &pos) const // this is a slot
+{
+    // Handle global position
+    QPoint globalPos = list_view->mapToGlobal(pos);
+
+    // Create menu and insert some actions
+    QMenu myMenu;
+    myMenu.addAction("Add to New Plot", this, SLOT(menu_addNewPlot()));
+    myMenu.addAction("Append to Current Plot", this, SLOT(menu_appendToCurrentPlot()));
+
+    // Show context menu at handling position
+    myMenu.exec(globalPos);
+}
+
+void MainWindow::menu_addNewPlot() {
+    auto *w = new QCustomPlot();
+    w->setMinimumSize(400,400);
+    addFlowWidget(w);
+}
+
+
+void MainWindow::menu_appendToCurrentPlot() {
+
+}
