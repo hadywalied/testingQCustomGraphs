@@ -32,9 +32,9 @@ void MainWindow::setCentralPlottingArea() {
     setCentralWidget(scroll);
 
     flowlayout = new FlowLayout();
-    auto w = new QWidget;
-    w->setLayout(flowlayout);
-    scroll->setWidget(w);
+    centerWidget = new QWidget;
+    centerWidget->setLayout(flowlayout);
+    scroll->setWidget(centerWidget);
 
     addPlot("Plotting 1", {1, 2, 3, 4, 5, 6}, {2, 3, 4, 5, 6, 8}, true);
     addPlot("Plotting 2", {1, 2, 3, 4, 5, 6}, {2, 5, 4, 8, 6, 1}, false);
@@ -50,21 +50,24 @@ void MainWindow::addFlowWidget(QWidget *w) {
 //        flowlayout->removeWidget(w);
 //    }
     flowlayout->addWidget(w);
-//    dynamicWidgetSizeAdjusting();
+    dynamicWidgetSizeAdjusting();
 }
 
 void MainWindow::dynamicWidgetSizeAdjusting() {
     if (widgetList.size() < 2) {
+        scroll->setWidget(widgetList[0]);
     } else if (widgetList.size() < 4) {
         for (auto w1 : widgetList) {
             w1->setMinimumSize(400, 400);
         }
-        setCentralWidget(scroll);
+        scroll->setWidget(centerWidget);
+//        setCentralWidget(scroll);
     } else {
         for (auto w1 : widgetList) {
             w1->setMinimumSize(200, 200);
         }
-        setCentralWidget(scroll);
+        scroll->setWidget(centerWidget);
+//        setCentralWidget(scroll);
     }
 }
 
@@ -347,7 +350,7 @@ void MainWindow::ShowContextMenu(const QPoint &pos) const // this is a slot
 
 void MainWindow::menu_addNewPlot() {
     auto *w = new QCustomPlot();
-    w->setMinimumSize(400,400);
+    w->setMinimumSize(400, 400);
     addFlowWidget(w);
 }
 

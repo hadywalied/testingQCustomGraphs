@@ -25,6 +25,7 @@ public:
     PlotSettings currentPlotSettings;
     QVector<QWidget *> widgetList{};
     QScrollArea *scroll;
+    QWidget* centerWidget;
 
 private:
     void setupUI();
