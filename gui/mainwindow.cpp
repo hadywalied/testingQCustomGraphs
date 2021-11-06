@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include <gui/reusableComponents/qcustomplot.h>
 #include <gui/reusableComponents/ListView.h>
+#include <gui/reusableComponents/flowlayout.h>
 
 
 MainWindow::MainWindow() {
@@ -53,12 +54,6 @@ void MainWindow::setLeftDockPlottingList() {
 void MainWindow::setRightDockPlottingSettings() {
     auto *dock = new QDockWidget(tr("Settings"), this);
 
-//    toolbar->setFloatable(false);
-//    toolbar->setMovable(false);
-
-
-//    addToolBar(Qt::RightToolBarArea,toolbar);
-
     dock->setAllowedAreas(Qt::RightDockWidgetArea);
 
     QAction *action = dock->toggleViewAction();
@@ -68,17 +63,17 @@ void MainWindow::setRightDockPlottingSettings() {
     auto *widget = new QWidget();
     auto *layout = new QVBoxLayout();
 
-    auto model = new QStringListModel{this};
-    model->setStringList(
-            QStringList{"Gandalf", "Aragorn", "Legolas", "Samwise Gamgee", "Gimli", "Bilbo Baggins", "Peregrin Took",
-                        "Boromir"});
-    auto combo_box_view = new QComboBox();
-    combo_box_view->setModel(model);
+    auto w = new QWidget();
+    auto flowLayout = new FlowLayout();
+    QPushButton *qButton = new QPushButton("Item Number 1");
+    QPushButton *wButton = new QPushButton("Item Number 2");
 
-    auto list_view = new QListView();
-    list_view->setModel(model);
+    flowLayout->addWidget(qButton);
+    flowLayout->addWidget(wButton);
 
-    layout->addWidget(list_view);
+    w->setLayout(flowLayout);
+    layout->addWidget(w);
+
     QPushButton *pButton = new QPushButton("Plot");
     layout->addWidget(pButton);
     connect(pButton, SIGNAL(clicked()), SLOT(onPlotButtonClicked()));
