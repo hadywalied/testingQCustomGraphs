@@ -50,7 +50,7 @@ void MainWindow::addFlowWidget(QWidget *w) {
 //        flowlayout->removeWidget(w);
 //    }
     flowlayout->addWidget(w);
-    dynamicWidgetSizeAdjusting();
+//    dynamicWidgetSizeAdjusting();
 }
 
 void MainWindow::dynamicWidgetSizeAdjusting() {
@@ -349,8 +349,8 @@ void MainWindow::ShowContextMenu(const QPoint &pos) const // this is a slot
 }
 
 void MainWindow::menu_addNewPlot() {
-    auto *w = new QCustomPlot();
-    w->setMinimumSize(400, 400);
+    auto *w = new PlottingWidget();
+    w->setMinimumSize(800,800);
     addFlowWidget(w);
 }
 

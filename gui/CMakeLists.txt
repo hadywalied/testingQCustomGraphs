@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Widgets REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Widgets Charts REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets Charts REQUIRED)
 find_package(Qt5PrintSupport REQUIRED)
 
 include_directories(${CMAKE_INCLUDE_CURRENT_DIR})

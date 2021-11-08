@@ -10,6 +10,7 @@
 #include <gui/reusableComponents/qcustomplot.h>
 #include <gui/reusableComponents/ListView.h>
 #include <gui/reusableComponents/flowlayout.h>
+#include <gui/reusableComponents/PlottingWidget.h>
 
 class MainWindow : public QMainWindow {
 Q_OBJECT

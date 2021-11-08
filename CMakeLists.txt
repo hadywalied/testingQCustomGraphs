@@ -16,8 +16,8 @@ add_subdirectory(gui)
 add_subdirectory(test)
 
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Widgets REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Widgets Charts REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets Charts REQUIRED)
 find_package(Qt5PrintSupport REQUIRED)
 
 file(GLOB_RECURSE SRCS
@@ -28,4 +28,4 @@ add_executable(testingNoForms
         ${SRCS}
 )
 
-target_link_libraries(testingNoForms Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets Qt5::PrintSupport)
+target_link_libraries(testingNoForms Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets Qt5::PrintSupport Qt5::Charts)
